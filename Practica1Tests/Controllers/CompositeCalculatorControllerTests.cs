@@ -21,7 +21,7 @@ namespace Practica1.Controllers.Tests
         {
             // Arrange
             var controller = new CompositeCalculatorController();
-            ICompositeCalculator compositeCalculator = new CompositeCalculator()
+            CompositeCalculator compositeCalculator = new CompositeCalculator()
             {
                 Type_interest = 2,
                 Type_Sums_Wallet = 2,
@@ -46,7 +46,7 @@ namespace Practica1.Controllers.Tests
             // Arrange                     
 
             var controller = new CompositeCalculatorController();
-            var compositeCalculator = Substitute.For<ICompositeCalculator>();
+            var compositeCalculator = new CompositeCalculator();
 
             // Act
             var result = controller.Post(compositeCalculator);
