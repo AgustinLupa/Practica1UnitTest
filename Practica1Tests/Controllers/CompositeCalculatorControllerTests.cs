@@ -20,7 +20,8 @@ namespace Practica1.Controllers.Tests
         public void Post_ValidInput_ReturnsCreatedResult()
         {
             // Arrange
-            var controller = new CompositeCalculatorController();
+            var substituteService = Substitute.For<ICompositeCalculatorServices>();
+            var controller = new CompositeCalculatorController(substituteService);
             CompositeCalculator compositeCalculator = new CompositeCalculator()
             {
                 Type_interest = 2,
@@ -33,6 +34,7 @@ namespace Practica1.Controllers.Tests
             
             // Act
             var result = controller.Post(compositeCalculator);
+            substituteService.Calculate(compositeCalculator).Returns(1926.1356);
 
             // Assert
             Assert.IsInstanceOfType(result, typeof(OkObjectResult));
@@ -45,12 +47,15 @@ namespace Practica1.Controllers.Tests
         {
             // Arrange                     
 
-            var controller = new CompositeCalculatorController();
+            var substituteService = Substitute.For<ICompositeCalculatorServices>();
+            var controller = new CompositeCalculatorController(substituteService);
             var compositeCalculator = new CompositeCalculator();
 
             // Act
+            substituteService.When(x => x.Calculate(Arg.Any<ICompositeCalculator>()))
+                    .Do(x => throw new ArgumentException("Simulación de excepción"));
             var result = controller.Post(compositeCalculator);
-
+            
             // Assert
             Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
             Assert.AreEqual(400, (result as BadRequestObjectResult).StatusCode);

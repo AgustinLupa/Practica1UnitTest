@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Practica1.Database;
 using Practica1.Models;
 using Practica1.Models.Interface;
 using Practica1.Repository;
@@ -12,12 +13,13 @@ namespace Practica1.Controllers
     [ApiController]
     public class CompositeCalculatorController : ControllerBase
     {
-        CompositeCalculatorRepository compositeCalculatorRepository;
+        ICompositeCalculatorServices compositeCalculatorService;
 
-        public CompositeCalculatorController()
+        public CompositeCalculatorController(ICompositeCalculatorServices services)
         {
-            compositeCalculatorRepository = new CompositeCalculatorRepository();
+            compositeCalculatorService = services;
         }
+
         // POST 
         [Route("Calculadora")]
         [HttpPost]
@@ -25,7 +27,7 @@ namespace Practica1.Controllers
         {
             try
             {
-                var json =  compositeCalculatorRepository.Calculate(compositeCalculator) ;
+                var json =  compositeCalculatorService.Calculate(compositeCalculator) ;
                 return Ok(json);
             }
             catch (ArgumentException e)

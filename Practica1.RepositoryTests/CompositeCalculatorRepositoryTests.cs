@@ -7,200 +7,254 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Practica1.Database;
 
 namespace Practica1.Repository.Tests
 {
     [TestClass()]
     public class CompositeCalculatorRepositoryTests
-    {
+    {        
         [TestMethod()]
-        public void CalculateWithValidations_ValidInput_ReturnsResult()
+        public void CalculateTestCorrectData()
+        {
+            //Arrange
+
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 2,
+                Type_Sums_Wallet = 2,
+                ammount_initial = 500,
+                Interest = 10,
+                Sums_Wallet = 200,
+                YearsOfInterest = 1
+            };
+            //Act
+            var result = calculator.CalculateInterest(problem);
+            //Assert
+
+            Assert.IsNotNull(result);
+        }
+
+
+        [TestMethod()]
+        public void CalculateTest_InterestType1_SumsWalletType1_MultipleYears_ReturnsExpectedResult()
         {
             // Arrange
-            var repository = new CompositeCalculatorRepository();
+            var calculator = new CompositeCalculatorRepository();
             ICompositeCalculator problem = new CompositeCalculator()
             {
                 Type_interest = 1,
                 Type_Sums_Wallet = 1,
                 ammount_initial = 1000,
-                Interest = 5,
+                Interest = 0.5,  // 0.05%
                 Sums_Wallet = 50,
-                YearsOfInterest = 3
+                YearsOfInterest = 5
             };
 
             // Act
-            var result = repository.Calculate(problem);
+            var result = calculator.CalculateInterest(problem);
 
             // Assert
-            Assert.IsNotNull(result);
-            
+            Assert.AreEqual(935329.1762, result, 0.0001);
         }
 
         [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_NullCalculator_ThrowsException()
+        public void CalculateTest_InterestType2_SumsWalletType1_MultipleYears_ReturnsExpectedResult()
         {
             // Arrange
-            var repository = new CompositeCalculatorRepository();
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 2,
+                Type_Sums_Wallet = 1,
+                ammount_initial = 1200,
+                Interest = 8,  // 0.8%
+                Sums_Wallet = 75,
+                YearsOfInterest = 3
+            };
 
             // Act
-            repository.Calculate(null);
+            var result = calculator.CalculateInterest(problem);
 
-            // Assert (Se espera que arroje una excepción)
+            // Assert
+            Assert.AreEqual(33194.4673, result, 0.0001);  // Ajusta el valor esperado según tu lógica de cálculo y redondeo
         }
 
         [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_NegativeInitialAmount_ThrowsException()
+        public void CalculateTest_InterestType1_SumsWalletType2_MultipleYears_ReturnsExpectedResult()
         {
             // Arrange
-            var repository = new CompositeCalculatorRepository();
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 2,
+                ammount_initial = 2000,
+                Interest = 0.6,  // 0.6%
+                Sums_Wallet = 120,
+                YearsOfInterest = 4
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(1125120.9671, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_NegativeInterest_ReturnsExpectedResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
             ICompositeCalculator problem = new CompositeCalculator()
             {
                 Type_interest = 1,
                 Type_Sums_Wallet = 1,
-                ammount_initial = -1000,
+                ammount_initial = 1000,
+                Interest = -0.5,  // Tasa de interés negativa
+                Sums_Wallet = 50,
+                YearsOfInterest = 3
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(317.4561, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_NegativeInitialAmount_ReturnsNegativeResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 1,
+                ammount_initial = -1000,  // Cantidad inicial negativa
+                Interest = 0.5,
+                Sums_Wallet = 50,
+                YearsOfInterest = 3
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(-36970.5342, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_ZeroInitialAmountAndZeroSums_ReturnsZeroResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 1,
+                ammount_initial = 0,
+                Interest = 5,
+                Sums_Wallet = 0,  // Sumas en la cartera cero
+                YearsOfInterest = 3
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(0, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_SumsWalletNegative_ReturnsZeroResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 1,
+                ammount_initial = 1000,
+                Interest = 0.5,
+                Sums_Wallet = -50,  // Sumas en la cartera negativas
+                YearsOfInterest = 3
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(36970.5342, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_NegativeInitialAmountAndNegativeSums_ReturnsNegativeResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 1,
+                ammount_initial = -1000,  // Cantidad inicial negativa
+                Interest = 0.5,
+                Sums_Wallet = -50,  // Sumas en la cartera negativas
+                YearsOfInterest = 3
+            };
+
+            // Act
+            var result = calculator.CalculateInterest(problem);
+
+            // Assert
+            Assert.AreEqual(-66914.0023, result, 0.0001);
+        }
+
+        [TestMethod()]
+        public void CalculateTest_NegativeYearsOfInterest_ReturnsExpectedResult()
+        {
+            // Arrange
+            var calculator = new CompositeCalculatorRepository();
+            ICompositeCalculator problem = new CompositeCalculator()
+            {
+                Type_interest = 1,
+                Type_Sums_Wallet = 1,
+                ammount_initial = 1000,
                 Interest = 5,
                 Sums_Wallet = 50,
-                YearsOfInterest = 3
+                YearsOfInterest = -3  // Años de interés negativos
             };
 
             // Act
-            repository.Calculate(problem);
+            var result = calculator.CalculateInterest(problem);
 
-            // Assert (Se espera que arroje una excepción)
+            // Assert
+            Assert.AreEqual(1000, result, 0.0001);
         }
 
         [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_ZeroInterest_ThrowsException()
+        public void CalculateTest_ZeroInterestAndZeroSums_ReturnsInitialAmount()
         {
             // Arrange
-            var repository = new CompositeCalculatorRepository();
+            var calculator = new CompositeCalculatorRepository();
             ICompositeCalculator problem = new CompositeCalculator()
             {
                 Type_interest = 1,
                 Type_Sums_Wallet = 1,
                 ammount_initial = 1000,
-                Interest = 0,
-                Sums_Wallet = 50,
+                Interest = 0,  // Tasa de interés cero
+                Sums_Wallet = 0,  // Sumas en la cartera cero
                 YearsOfInterest = 3
             };
 
             // Act
-            repository.Calculate(problem);
+            var result = calculator.CalculateInterest(problem);
 
-            // Assert (Se espera que arroje una excepción)
-        }
-
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_ZeroYearsOfInterest_ThrowsException()
-        {
-            // Arrange
-            var repository = new CompositeCalculatorRepository();
-            ICompositeCalculator problem = new CompositeCalculator()
-            {
-                Type_interest = 1,
-                Type_Sums_Wallet = 1,
-                ammount_initial = 1000,
-                Interest = 5,
-                Sums_Wallet = 50,
-                YearsOfInterest = 0
-            };
-
-            // Act
-            repository.Calculate(problem);
-
-            // Assert (Se espera que arroje una excepción)
-        }
-
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_NegativeSumsWallet_ThrowsException()
-        {
-            // Arrange
-            var repository = new CompositeCalculatorRepository();
-            ICompositeCalculator problem = new CompositeCalculator()
-            {
-                Type_interest = 1,
-                Type_Sums_Wallet = 1,
-                ammount_initial = 1000,
-                Interest = 5,
-                Sums_Wallet = -50,
-                YearsOfInterest = 3
-            };
-
-            // Act
-            repository.Calculate(problem);
-
-            // Assert (Se espera que arroje una excepción)
-        }
-
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_NegativeInterest_ThrowsException()
-        {
-            // Arrange
-            var repository = new CompositeCalculatorRepository();
-            ICompositeCalculator problem = new CompositeCalculator()
-            {
-                Type_interest = 1,
-                Type_Sums_Wallet = 1,
-                ammount_initial = 1000,
-                Interest = -5,
-                Sums_Wallet = 50,
-                YearsOfInterest = 3
-            };
-
-            // Act
-            repository.Calculate(problem);
-
-            // Assert (Se espera que arroje una excepción)
-        }
-
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_InvalidTypeSumsWallet_ThrowsException()
-        {
-            // Arrange
-            var repository = new CompositeCalculatorRepository();
-            ICompositeCalculator problem = new CompositeCalculator()
-            {
-                Type_interest = 1,
-                Type_Sums_Wallet = 0,  // Tipo de sumas en la cartera inválido
-                ammount_initial = 1000,
-                Interest = 5,
-                Sums_Wallet = 50,
-                YearsOfInterest = 3
-            };
-
-            // Act
-            repository.Calculate(problem);
-
-            // Assert (Se espera que arroje una excepción)
-        }
-
-        [TestMethod()]
-        [ExpectedException(typeof(ArgumentException))]
-        public void CalculateWithValidations_InvalidTypeInterest_ThrowsException()
-        {
-            // Arrange
-            var repository = new CompositeCalculatorRepository();
-            ICompositeCalculator problem = new CompositeCalculator()
-            {
-                Type_interest = 0,  // Tipo de interés inválido
-                Type_Sums_Wallet = 1,
-                ammount_initial = 1000,
-                Interest = 5,
-                Sums_Wallet = 50,
-                YearsOfInterest = 3
-            };
-
-            // Act
-            repository.Calculate(problem);
-
-            // Assert (Se espera que arroje una excepción)
+            // Assert
+            Assert.AreEqual(1000, result, 0.0001);
         }
     }
 }
